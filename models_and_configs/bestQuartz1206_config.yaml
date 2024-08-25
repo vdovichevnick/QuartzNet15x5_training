@@ -1,0 +1,502 @@
+sample_rate: 16000
+repeat: 5
+dropout: 0.0
+separable: true
+labels:
+- ' '
+- а
+- б
+- в
+- г
+- д
+- е
+- ж
+- з
+- и
+- й
+- к
+- л
+- м
+- н
+- о
+- п
+- р
+- с
+- т
+- у
+- ф
+- х
+- ц
+- ч
+- ш
+- щ
+- ъ
+- ы
+- ь
+- э
+- ю
+- я
+optim:
+  name: novograd
+  lr: 0.005
+  betas:
+  - 0.9
+  - 0.98
+  weight_decay: 0.001
+  sched:
+    name: CosineAnnealing
+    warmup_steps: 10000
+    warmup_ratio: null
+    min_lr: 0.0005
+    last_epoch: -1
+train_ds:
+  manifest_filepath:
+  - /home/jupyter/datasphere/datasets/RuDevices/RuDevicesDataset/manifestRuDevices.jsonl
+  - /home/jupyter/datasphere/datasets/STTandCustomer/OpenSTTruDatasets/asr_calls_2_val/manifestSTTcalls.jsonl
+  - /home/jupyter/datasphere/datasets/STTandCustomer/OpenSTTruDatasets/buriy_audiobooks_2_val/manifestSTTaudiobooks.jsonl
+  - /home/jupyter/datasphere/datasets/STTandCustomer/OpenSTTruDatasets/public_youtube700_val/manifestSTTyoutube.jsonl
+  sample_rate: 16000
+  labels:
+  - ' '
+  - а
+  - б
+  - в
+  - г
+  - д
+  - е
+  - ж
+  - з
+  - и
+  - й
+  - к
+  - л
+  - м
+  - н
+  - о
+  - п
+  - р
+  - с
+  - т
+  - у
+  - ф
+  - х
+  - ц
+  - ч
+  - ш
+  - щ
+  - ъ
+  - ы
+  - ь
+  - э
+  - ю
+  - я
+  batch_size: 32
+  trim_silence: false
+  max_duration: 20.0
+  min_duration: 0.1
+  num_workers: 8
+  shuffle: true
+  is_tarred: false
+  tarred_audio_filepaths: null
+  tarred_shard_strategy: scatter
+  parser: ru
+validation_ds:
+  name: long_audio
+  manifest_filepath:
+  - /home/jupyter/datasphere/datasets/RuDevices/RuDevicesDataset/manifestValidationRuDevices.jsonl
+  - /home/jupyter/datasphere/datasets/STTandCustomer/OpenSTTruDatasets/asr_calls_2_val/manifestValidationSTTcalls.jsonl
+  - /home/jupyter/datasphere/datasets/STTandCustomer/OpenSTTruDatasets/buriy_audiobooks_2_val/manifestValidationSTTaudiobooks.jsonl
+  - /home/jupyter/datasphere/datasets/STTandCustomer/OpenSTTruDatasets/public_youtube700_val/manifestValidationSTTyoutube.jsonl
+  sample_rate: 16000
+  labels:
+  - ' '
+  - а
+  - б
+  - в
+  - г
+  - д
+  - е
+  - ж
+  - з
+  - и
+  - й
+  - к
+  - л
+  - м
+  - н
+  - о
+  - п
+  - р
+  - с
+  - т
+  - у
+  - ф
+  - х
+  - ц
+  - ч
+  - ш
+  - щ
+  - ъ
+  - ы
+  - ь
+  - э
+  - ю
+  - я
+  batch_size: 3
+  num_workers: 8
+  shuffle: false
+  parser: ru
+test_ds:
+  manifest_filepath: test/mcv/test_ru.jsonl
+  sample_rate: 16000
+  labels:
+  - ' '
+  - а
+  - б
+  - в
+  - г
+  - д
+  - е
+  - ж
+  - з
+  - и
+  - й
+  - к
+  - л
+  - м
+  - н
+  - о
+  - п
+  - р
+  - с
+  - т
+  - у
+  - ф
+  - х
+  - ц
+  - ч
+  - ш
+  - щ
+  - ъ
+  - ы
+  - ь
+  - э
+  - ю
+  - я
+  batch_size: 64
+  shuffle: false
+  parser: ru
+preprocessor:
+  _target_: nemo.collections.asr.modules.AudioToMelSpectrogramPreprocessor
+  normalize: per_feature
+  window_size: 0.02
+  sample_rate: 16000
+  window_stride: 0.01
+  window: hann
+  features: 64
+  n_fft: 512
+  frame_splicing: 1
+  dither: 1.0e-05
+  stft_conv: false
+spec_augment:
+  _target_: nemo.collections.asr.modules.SpectrogramAugmentation
+  rect_freq: 50
+  rect_masks: 5
+  rect_time: 120
+encoder:
+  _target_: nemo.collections.asr.modules.ConvASREncoder
+  feat_in: 64
+  activation: relu
+  conv_mask: true
+  jasper:
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 33
+    repeat: 1
+    residual: false
+    separable: true
+    stride:
+    - 2
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 33
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 33
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 33
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 39
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 39
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 256
+    kernel:
+    - 39
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 51
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 51
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 51
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 63
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 63
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 63
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 75
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 75
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 75
+    repeat: 5
+    residual: true
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 2
+    dropout: 0.0
+    filters: 512
+    kernel:
+    - 87
+    repeat: 1
+    residual: false
+    separable: true
+    stride:
+    - 1
+  - dilation:
+    - 1
+    dropout: 0.0
+    filters: 1024
+    kernel:
+    - 1
+    repeat: 1
+    residual: false
+    stride:
+    - 1
+decoder:
+  _target_: nemo.collections.asr.modules.ConvASRDecoder
+  feat_in: 1024
+  num_classes: 33
+  vocabulary:
+  - ' '
+  - а
+  - б
+  - в
+  - г
+  - д
+  - е
+  - ж
+  - з
+  - и
+  - й
+  - к
+  - л
+  - м
+  - н
+  - о
+  - п
+  - р
+  - с
+  - т
+  - у
+  - ф
+  - х
+  - ц
+  - ч
+  - ш
+  - щ
+  - ъ
+  - ы
+  - ь
+  - э
+  - ю
+  - я
+target: nemo.collections.asr.models.ctc_models.EncDecCTCModel
+nemo_version: 1.21.0
+decoding:
+  strategy: greedy
+  preserve_alignments: null
+  compute_timestamps: null
+  word_seperator: ' '
+  ctc_timestamp_type: all
+  batch_dim_index: 0
+  greedy:
+    preserve_alignments: false
+    compute_timestamps: false
+    preserve_frame_confidence: false
+    confidence_measure_cfg:
+      name: entropy
+      entropy_type: tsallis
+      alpha: 0.33
+      entropy_norm: exp
+      temperature: DEPRECATED
+    confidence_method_cfg: DEPRECATED
+  beam:
+    beam_size: 4
+    search_type: default
+    preserve_alignments: false
+    compute_timestamps: false
+    return_best_hypothesis: true
+    beam_alpha: 1.0
+    beam_beta: 0.0
+    kenlm_path: null
+    flashlight_cfg:
+      lexicon_path: null
+      boost_path: null
+      beam_size_token: 16
+      beam_threshold: 20.0
+      unk_weight: -.inf
+      sil_weight: 0.0
+    pyctcdecode_cfg:
+      beam_prune_logp: -10.0
+      token_min_logp: -5.0
+      prune_history: false
+      hotwords: null
+      hotword_weight: 10.0
+  confidence_cfg:
+    preserve_frame_confidence: false
+    preserve_token_confidence: false
+    preserve_word_confidence: false
+    exclude_blank: true
+    aggregation: min
+    measure_cfg:
+      name: entropy
+      entropy_type: tsallis
+      alpha: 0.33
+      entropy_norm: exp
+      temperature: DEPRECATED
+    method_cfg: DEPRECATED
+  temperature: 1.0
